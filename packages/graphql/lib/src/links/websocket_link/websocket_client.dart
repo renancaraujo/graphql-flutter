@@ -16,6 +16,9 @@ import './websocket_messages.dart';
 
 typedef GetInitPayload = FutureOr<dynamic> Function();
 
+typedef ConnectWebsocket = Future<WebSocket> Function(String url,
+    {Iterable<String> protocols});
+
 class SubscriptionListener {
   Function callback;
   bool hasBeenTriggered = false;
@@ -113,9 +116,9 @@ class SocketClient {
       'graphql-ws',
     ],
     this.config = const SocketClientConfig(),
-    this.connect = WebSocket.connect,
+    ConnectWebsocket connectWebsocket,
     @visibleForTesting this.randomBytesForUuid,
-  }) {
+  }) : this.connect = connectWebsocket ?? WebSocket.connect {
     _connect();
   }
 
@@ -130,8 +133,7 @@ class SocketClient {
   final HashMap<String, SubscriptionListener> _subscriptionInitializers =
       HashMap();
 
-  final Future<WebSocket> Function(String url, {Iterable<String> protocols})
-      connect;
+  final ConnectWebsocket connect;
 
   bool _connectionWasLost = false;
 
@@ -146,6 +148,7 @@ class SocketClient {
 
   Map<String, dynamic> Function(Request) get serialize =>
       config.serializer.serializeRequest;
+
   Response Function(Map<String, dynamic>) get parse =>
       config.parser.parseResponse;
 

@@ -34,11 +34,12 @@ class WebSocketLink extends Link {
   }
 
   /// Connects or reconnects to the server with the specified headers.
-  void connectOrReconnect() {
+  void connectOrReconnect([ConnectWebsocket connectWebsocket]) {
     _socketClient?.dispose();
     _socketClient = SocketClient(
       url,
       config: config,
+      connectWebsocket: connectWebsocket
     );
   }
 
